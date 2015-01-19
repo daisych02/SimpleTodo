@@ -7,3 +7,5 @@ Completed user stories:
 
 REQUIRED : Add and remove items
 REQUIRED : Edit item and save
+
+![alt tag](https://raw.githubusercontent.com/daisych02/SimpleTodo/master/SimpleTodo.gif)
