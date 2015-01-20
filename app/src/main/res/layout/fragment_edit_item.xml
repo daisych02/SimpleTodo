@@ -16,9 +16,17 @@
         android:layout_height="wrap_content"
         android:text="Save"
         android:id="@+id/btnSave"
+        android:layout_marginTop="94dp"
         android:layout_below="@+id/etItemEdit"
-        android:layout_alignParentStart="true"
-        android:layout_marginTop="41dp"
-        android:layout_alignEnd="@+id/btnSave" />
+        android:layout_alignParentStart="true" />
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/etDateEdit"
+        android:layout_below="@+id/etItemEdit"
+        android:layout_alignEnd="@+id/etItemEdit"
+        android:hint="Date here"
+        android:layout_alignParentStart="true" />
 
 </RelativeLayout>

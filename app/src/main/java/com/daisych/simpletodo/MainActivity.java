@@ -23,6 +23,8 @@ import java.util.ArrayList;
 public class MainActivity extends ActionBarActivity implements EditItemDialog.EditItemDialogListener {
     ArrayList<String> items;
     ArrayAdapter<String> itemsAdaptor;
+    ArrayList<Item> items_list;
+    ItemsAdapter items_listAdaptor;
     ListView lvItems;
 
     @Override
@@ -31,11 +33,17 @@ public class MainActivity extends ActionBarActivity implements EditItemDialog.Ed
         setContentView(R.layout.activity_main);
         readItems();
         lvItems = (ListView) findViewById(R.id.lvItems);
-        items = new ArrayList<String>();
-        itemsAdaptor = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, items);
-        lvItems.setAdapter(itemsAdaptor);
-        items.add("Milk");
-        items.add("Bread");
+//        items = new ArrayList<String>();
+//        itemsAdaptor = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, items);
+        items_list = new ArrayList<Item>();
+        items_listAdaptor = new ItemsAdapter(this, items_list);
+        lvItems.setAdapter(items_listAdaptor);
+
+//        lvItems.setAdapter(itemsAdaptor);
+//        items.add("Milk");
+//        items.add("Bread");
+        items_list.add(new Item("Buy Milk", "1/1"));
+        items_list.add(new Item("Buy Bread", "1/2"));
         setupListViewListenser();
     }
 
@@ -44,8 +52,10 @@ public class MainActivity extends ActionBarActivity implements EditItemDialog.Ed
                 new AdapterView.OnItemLongClickListener() {
                     @Override
                     public boolean onItemLongClick(AdapterView<?> adaptor, View item, int pos, long id) {
-                        items.remove(pos);
-                        itemsAdaptor.notifyDataSetChanged();
+//                        items.remove(pos);
+//                        itemsAdaptor.notifyDataSetChanged();
+                        items_list.remove(pos);
+                        items_listAdaptor.notifyDataSetChanged();
                         writeItems();
                         return true;
                     }
@@ -58,7 +68,9 @@ public class MainActivity extends ActionBarActivity implements EditItemDialog.Ed
                    public void onItemClick(AdapterView<?> adaptor, View item, int pos, long id) {
                        Intent i = new Intent(MainActivity.this, EditItemActivity.class);
                        i.putExtra("index", pos);
-                       i.putExtra("item", items.get(pos));
+//                       i.putExtra("item", items.get(pos));
+                       i.putExtra("item", items_list.get(pos).getName());
+                       i.putExtra("date", items_list.get(pos).getDate());
 
                        // The dialog (fragment) way
                        showEditDialog(pos);
@@ -95,19 +107,45 @@ public class MainActivity extends ActionBarActivity implements EditItemDialog.Ed
 
     public void onAddItem (View v) {
         EditText etNewItem = (EditText) findViewById(R.id.etNewItem);
+        EditText etDueDate = (EditText) findViewById(R.id.etDueDate);
         String itemText = etNewItem.getText().toString();
-        itemsAdaptor.add(itemText);
-        etNewItem.setText("");
-        writeItems();
+        String dueDate = etDueDate.getText().toString();
+
+//        itemsAdaptor.add(itemText);
+        Item added = new Item(itemText, dueDate);
+        boolean exist = false;
+        for(Item item : items_list) {
+            if(item.Equals(added)) {
+                exist = true;
+            }
+        }
+        if(!exist) {
+            items_listAdaptor.add(added);
+            etNewItem.setText("");
+            etDueDate.setText("");
+            writeItems();
+        } else {
+            Toast.makeText(this, "Item already exist!", Toast.LENGTH_LONG);
+        }
     }
 
     private void readItems() {
         File filesDir = getFilesDir();
         File todoFile = new File(filesDir, "todo.txt");
+//        try {
+//            items = new ArrayList<String>(FileUtils.readLines(todoFile));
+//        } catch (IOException e) {
+//            items = new ArrayList<String>();
+//        }
         try {
-            items = new ArrayList<String>(FileUtils.readLines(todoFile));
+            ArrayList<String> list = new ArrayList<String>(FileUtils.readLines(todoFile));
+            items_list = new ArrayList<Item>();
+            for(String str : list) {
+                items_list.add(new Item(str));
+            }
         } catch (IOException e) {
-            items = new ArrayList<String>();
+            items_list = new ArrayList<Item>();
+            e.printStackTrace();
         }
     }
 
@@ -115,7 +153,11 @@ public class MainActivity extends ActionBarActivity implements EditItemDialog.Ed
         File filesDir = getFilesDir();
         File todoFile = new File(filesDir, "todo.txt");
         try {
-            FileUtils.writeLines(todoFile, items);
+            ArrayList<String> list = new ArrayList<String>();
+            for(Item item : items_list) {
+                list.add(item.getName() + " " + item.getDate());
+            }
+            FileUtils.writeLines(todoFile, list);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -125,10 +167,13 @@ public class MainActivity extends ActionBarActivity implements EditItemDialog.Ed
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == RESULT_OK && requestCode == 200) {
             String item = data.getStringExtra("item");
+            String date = data.getStringExtra("date");
             int pos = data.getIntExtra("index", 0);
 
-            items.set(pos, item);
-            itemsAdaptor.notifyDataSetChanged();
+//            items.set(pos, item);
+//            itemsAdaptor.notifyDataSetChanged();
+            items_list.set(pos, new Item(item, date));
+            items_listAdaptor.notifyDataSetChanged();
             writeItems();
         }
     }
@@ -138,7 +183,9 @@ public class MainActivity extends ActionBarActivity implements EditItemDialog.Ed
         EditItemDialog editItemDialog = EditItemDialog.newInstance("Edit Item");
         Bundle bundle = new Bundle();
         bundle.putInt("index", pos);
-        bundle.putString("item", items.get(pos));
+//        bundle.putString("item", items.get(pos));
+        bundle.putString("item", items_list.get(pos).getName());
+        bundle.putString("date", items_list.get(pos).getDate());
         editItemDialog.setArguments(bundle);
 
         editItemDialog.show(fm, "fragment_edit_item");
@@ -147,10 +194,13 @@ public class MainActivity extends ActionBarActivity implements EditItemDialog.Ed
     @Override
     public void onFinishEditDialog(Intent i) {
         String item = i.getStringExtra("item");
+        String date = i.getStringExtra("date");
         int pos = i.getIntExtra("index", 0);
 
-        items.set(pos, item);
-        itemsAdaptor.notifyDataSetChanged();
+//        items.set(pos, item);
+//        itemsAdaptor.notifyDataSetChanged();
+        items_list.set(pos, new Item(item, date));
+        items_listAdaptor.notifyDataSetChanged();
         writeItems();
     }
 }

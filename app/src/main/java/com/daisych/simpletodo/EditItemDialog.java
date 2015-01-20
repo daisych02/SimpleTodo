@@ -28,6 +28,7 @@ public class EditItemDialog extends DialogFragment {
     }
 
     private EditText etItemEdit;
+    private EditText etDateEdit;
     int pos;
     String item;
     EditItemDialogListener editItemDialogListener;
@@ -59,9 +60,12 @@ public class EditItemDialog extends DialogFragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_edit_item, container);
         etItemEdit = (EditText) view.findViewById(R.id.etItemEdit);
+        etDateEdit = (EditText) view.findViewById(R.id.etDateEdit);
         pos = getArguments().getInt("index");
         String item = getArguments().getString("item");
+        String date = getArguments().getString("date");
         etItemEdit.setText(item);
+        etDateEdit.setText(date);
 
         String title = getArguments().getString("title", "Edit Item");
         getDialog().setTitle(title);
@@ -74,6 +78,7 @@ public class EditItemDialog extends DialogFragment {
                 EditText etItemEdit = (EditText) parent.findViewById(R.id.etItemEdit);
 
                 i.putExtra("item", etItemEdit.getText().toString());
+                i.putExtra("date", etDateEdit.getText().toString());
                 i.putExtra("index", pos);
                 editItemDialogListener.onFinishEditDialog(i);
                 dismiss();
