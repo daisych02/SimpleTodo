@@ -11,4 +11,6 @@ REQUIRED : Add and remove items
 
 REQUIRED : Edit item and save  
 
+EXTRA : Use a DialogFragment instead of new Activity for editing items
+
 ![alt tag](https://raw.githubusercontent.com/daisych02/SimpleTodo/master/SimpleTodo.gif)

@@ -1,6 +1,7 @@
 package com.daisych.simpletodo;
 
 import android.content.Intent;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
@@ -19,7 +20,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 
-public class MainActivity extends ActionBarActivity {
+public class MainActivity extends ActionBarActivity implements EditItemDialog.EditItemDialogListener {
     ArrayList<String> items;
     ArrayAdapter<String> itemsAdaptor;
     ListView lvItems;
@@ -59,8 +60,12 @@ public class MainActivity extends ActionBarActivity {
                        i.putExtra("index", pos);
                        i.putExtra("item", items.get(pos));
 
-                       startActivityForResult(i, 200); // brings up the second activity
-                       writeItems();
+                       // The dialog (fragment) way
+                       showEditDialog(pos);
+
+                       // The new activity way
+//                       startActivityForResult(i, 200); // brings up the second activity
+//                       writeItems();
                    }
                }
         );
@@ -126,6 +131,27 @@ public class MainActivity extends ActionBarActivity {
             itemsAdaptor.notifyDataSetChanged();
             writeItems();
         }
+    }
+
+    private void showEditDialog(int pos) {
+        FragmentManager fm = getSupportFragmentManager();
+        EditItemDialog editItemDialog = EditItemDialog.newInstance("Edit Item");
+        Bundle bundle = new Bundle();
+        bundle.putInt("index", pos);
+        bundle.putString("item", items.get(pos));
+        editItemDialog.setArguments(bundle);
+
+        editItemDialog.show(fm, "fragment_edit_item");
+    }
+
+    @Override
+    public void onFinishEditDialog(Intent i) {
+        String item = i.getStringExtra("item");
+        int pos = i.getIntExtra("index", 0);
+
+        items.set(pos, item);
+        itemsAdaptor.notifyDataSetChanged();
+        writeItems();
     }
 }
 
